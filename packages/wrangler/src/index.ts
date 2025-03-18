@@ -47,6 +47,15 @@ import {
 	JsonFriendlyFatalError,
 	UserError,
 } from "./errors";
+import {
+	eventSubscriptionsBrowseCommand,
+	eventSubscriptionsCreateCommand,
+	eventSubscriptionsDeleteCommand,
+	eventSubscriptionsGetCommand,
+	eventSubscriptionsListCommand,
+	eventSubscriptionsNamespace,
+	eventSubscriptionsUpdateCommand,
+} from "./event-subscriptions";
 import { generateHandler, generateOptions } from "./generate";
 import { hyperdrive } from "./hyperdrive/index";
 import { initHandler, initOptions } from "./init";
@@ -375,7 +384,7 @@ export function createCLIParser(argv: string[]) {
 	 * Further we return the result of this builder even though it's not completely necessary.
 	 * The reason is that it's required for type inference of the args in the handle function.
 	 * I wish we could enforce this pattern, but this comment will have to do for now.
-	 * (It's also annoying that choices[] doesn't get inferred as an enum. 🤷‍♂.)
+	 * (It's also annoying that choices[] doesn't get inferred as an enum. 🤷.)
 	 */
 	/*
 	 * TODO: Implement proper command grouping if yargs will ever support it
@@ -560,6 +569,39 @@ export function createCLIParser(argv: string[]) {
 	wrangler.command("queues", "🇶  Manage Workers Queues", (queuesYargs) => {
 		return queues(queuesYargs.command(subHelp));
 	});
+
+	// event-subscriptions
+	registry.define([
+		{
+			command: "wrangler event-subscriptions",
+			definition: eventSubscriptionsNamespace,
+		},
+		{
+			command: "wrangler event-subscriptions browse",
+			definition: eventSubscriptionsBrowseCommand,
+		},
+		{
+			command: "wrangler event-subscriptions list",
+			definition: eventSubscriptionsListCommand,
+		},
+		{
+			command: "wrangler event-subscriptions create",
+			definition: eventSubscriptionsCreateCommand,
+		},
+		{
+			command: "wrangler event-subscriptions update",
+			definition: eventSubscriptionsUpdateCommand,
+		},
+		{
+			command: "wrangler event-subscriptions delete",
+			definition: eventSubscriptionsDeleteCommand,
+		},
+		{
+			command: "wrangler event-subscriptions get",
+			definition: eventSubscriptionsGetCommand,
+		},
+	]);
+	registry.registerNamespace("event-subscriptions");
 
 	// r2
 	registry.define([
@@ -784,7 +826,7 @@ export function createCLIParser(argv: string[]) {
 	registry.registerNamespace("cert");
 
 	// pages
-	wrangler.command("pages", "⚡️ Configure Cloudflare Pages", (pagesYargs) => {
+	wrangler.command("pages", "⚡ Configure Cloudflare Pages", (pagesYargs) => {
 		// Pages does not support the `--config`,
 		// and `--env` flags, therefore hiding them from the global flags list.
 		pagesYargs.hide("config").hide("env");
@@ -818,7 +860,7 @@ export function createCLIParser(argv: string[]) {
 	// dispatch-namespace
 	wrangler.command(
 		"dispatch-namespace",
-		"🏗️  Manage dispatch namespaces",
+		"🏗  Manage dispatch namespaces",
 		(workerNamespaceYargs) => {
 			return workerNamespaceCommands(workerNamespaceYargs, subHelp);
 		}
@@ -966,7 +1008,7 @@ export function createCLIParser(argv: string[]) {
 	wrangler.command(
 		"route",
 		false, // I think we want to hide this command
-		// "➡️  List or delete worker routes",
+		// "➡  List or delete worker routes",
 		(routeYargs) => {
 			return route(routeYargs);
 		},
